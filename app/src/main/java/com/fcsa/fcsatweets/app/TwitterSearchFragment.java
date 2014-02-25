@@ -16,6 +16,7 @@ import android.widget.TextView;
 
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
+import com.google.gson.reflect.TypeToken;
 
 import org.apache.http.HttpResponse;
 import org.apache.http.HttpStatus;
@@ -24,12 +25,15 @@ import org.apache.http.client.HttpClient;
 import org.apache.http.client.methods.HttpGet;
 import org.apache.http.impl.client.DefaultHttpClient;
 
+import java.io.BufferedReader;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.InputStreamReader;
 import java.net.URL;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 /**
@@ -44,7 +48,7 @@ public class TwitterSearchFragment extends ListFragment {
 
     private ListView mListView;
     private Statuses statusesList;
-    private ProgressDialog pDialog;
+
 
     public TwitterSearchFragment(TwitterSearchActivity twitterSearchActivity) {
         mTwitterSearchActivity = twitterSearchActivity;
@@ -53,38 +57,61 @@ public class TwitterSearchFragment extends ListFragment {
     public TwitterSearchFragment() { }
 
 
-    @Override
-    public void onActivityCreated(Bundle saveInstanceState)
-    {
-        super.onCreate(saveInstanceState);
-        setRetainInstance(true);
-        initLayout();
-        int layout = R.layout.list_item_twittersearch;
-
-        String searchQuery = (String)getArguments().getString(EXTRA_SEARCH_QUERY);
-        new FetchBearerTokenTask2().execute(searchQuery);
-
-        setListAdapter(new TwitterSearchAdapter(getActivity(), layout, statusesList) );
-
-    }
-
 //    @Override
-//    public View onCreateView(LayoutInflater inflater, ViewGroup container,
-//            Bundle savedInstanceState) {
-//
-//
-//        View rootView = inflater.inflate(R.layout.fragment_twitter_search, container, false);
+//    public void onActivityCreated(Bundle saveInstanceState)
+//    {
+//        super.onCreate(saveInstanceState);
+//        setRetainInstance(true);
+//        initLayout();
+//        int layout = R.layout.list_item_twittersearch;
 //
 //        String searchQuery = (String)getArguments().getString(EXTRA_SEARCH_QUERY);
+//        setListAdapter(new TwitterSearchAdapter(getActivity(), layout, statusesList) );
 //
-//        //mListView = (ListView)(rootView.findViewById(R.layout.list_item_twittersearch));
-//
-//
-//
-//        //setAdapter();
-//
-//        return rootView;
 //    }
+
+    @Override
+    public View onCreateView(LayoutInflater inflater, ViewGroup container,
+            Bundle savedInstanceState) {
+
+
+        View rootView = inflater.inflate(R.layout.fragment_twitter_search, container, false);
+
+        String searchQuery = (String)getArguments().getString(EXTRA_SEARCH_QUERY);
+
+        //    JSONObject jso = new JSONObject(responseString);
+        //   JSONArray ja = jso.getJSONArray("statuses");
+        //String jsonObjectString  = responseString.replace("statuses","twittersearchresults");
+
+
+
+        try
+        {
+            final GsonBuilder builder = new GsonBuilder();
+            final Gson gson = builder.create();
+            Statuses statusesObj =  gson.fromJson(searchQuery, Statuses.class);
+
+            int layout = R.layout.list_item_twittersearch;
+
+            //setListAdapter(new TwitterSearchAdapter(getActivity(), layout,  statusesObj.mStatuses) );
+
+            mListView = (ListView)(rootView.findViewById(R.layout.list_item_twittersearch));
+            mListView.setAdapter(new TwitterSearchAdapter(getActivity(), layout,  statusesObj.mStatuses));
+
+            String msg = "";
+
+        }
+        catch (Exception e)
+        {
+
+            String msg = e.getMessage();
+
+        }
+
+
+
+        return rootView;
+    }
 
 
     private void initLayout() {
@@ -108,9 +135,9 @@ public class TwitterSearchFragment extends ListFragment {
 
     private class TwitterSearchAdapter extends ArrayAdapter<Status>
     {
-        public TwitterSearchAdapter(FragmentActivity activity, int layout, Statuses statuses)
+        public TwitterSearchAdapter(FragmentActivity activity, int layout, ArrayList<Status> statuses)
         {
-            super(getActivity(),layout, (List<Status>) statuses);
+            super(getActivity(),layout, statuses);
         }
 
         @Override
@@ -129,105 +156,7 @@ public class TwitterSearchFragment extends ListFragment {
         }
     }
 
-    private class FetchBearerTokenTask2 extends AsyncTask<String, Void, Statuses> {
 
-        @Override
-        protected void onPreExecute() {
-            try
-            {
-            pDialog = ProgressDialog.show(getActivity(),"Loading Data","Loading. Please wait...", true);
-            }
-            catch (Exception ex)
-            {
-                String msg = ex.getMessage();
-            }
-        }
-
-        @Override
-        protected void onPostExecute(Statuses statuses)
-        {
-
-            if (pDialog.isShowing())
-                pDialog.dismiss();
-
-            Statuses statuses2 = statuses;
-
-            setListAdapter(new TwitterSearchAdapter(getActivity(),  R.layout.list_item_twittersearch, statuses));
-            // ArrayAdapter<Status> adapter = new ArrayAdapter<Status>(getActivity())
-            // Start another activity with Fragment.
-            // Pass in the data.
-        }
-
-        @Override
-        protected Statuses doInBackground(String... params) {
-            String uriStr = "https://api.twitter.com/1.1/search/tweets.json?q=Farm%20Credit";
-            String bearerToken = "AAAAAAAAAAAAAAAAAAAAABwWWQAAAAAAUNyabju6tSElgeurJtQVkUUEfGE%3DVXA9ukvoFha46s4ffdByKCnbeoHJxzsu1HZNMNEygP0NRtGf4O";
-
-            URL url = null;
-            Statuses statusesResults = null;
-            try {
-
-                HttpClient httpclient = new DefaultHttpClient();
-
-                HttpGet httpGet = new HttpGet(uriStr);
-                httpGet.addHeader("User-Agent", "FCSA Tweets");
-                httpGet.addHeader("Authorization", "Bearer " + bearerToken);
-                httpGet.addHeader("Content-Type", "application/x-www-form-urlencoded");
-                //httpGet.addHeader("Accept-Encoding","gzip");
-                httpGet.addHeader("Content-Length", "0");
-
-
-                HttpResponse response = httpclient.execute(httpGet);
-                StatusLine statusLine = response.getStatusLine();
-                if(statusLine.getStatusCode() == HttpStatus.SC_OK){
-                    ByteArrayOutputStream out = new ByteArrayOutputStream();
-                    response.getEntity().writeTo(out);
-                    out.close();
-                    String responseString = out.toString();
-
-                    final GsonBuilder builder = new GsonBuilder();
-                    final Gson gson = builder.create();
-
-                    //    JSONObject jso = new JSONObject(responseString);
-                    //   JSONArray ja = jso.getJSONArray("statuses");
-                    //String jsonObjectString  = responseString.replace("statuses","twittersearchresults");
-
-                    try
-                    {
-                        statusesResults =  gson.fromJson(responseString,Statuses.class);
-
-                        //Log.i("FCSA Tweets", statusesResults.toString());
-
-
-                    }
-                    catch (Exception e)
-                    {
-
-                        String msg = e.getMessage();
-
-                    }
-
-
-
-                }
-                else
-                {
-                    //Closes the connection.
-
-                    response.getEntity().getContent().close();
-                    throw new IOException(statusLine.getReasonPhrase());
-                }
-
-
-            }
-            catch (Exception ex)
-            {
-                String msg = ex.getMessage();
-            }
-
-            return statusesResults;
-        }
-    }
 
     @Override
     public void onStart()

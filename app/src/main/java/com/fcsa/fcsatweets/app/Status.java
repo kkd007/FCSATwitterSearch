@@ -13,7 +13,7 @@ import java.util.ArrayList;
 class  Statuses
 {
     @SerializedName("statuses")
-    private Status[] mStatuses;
+    public ArrayList<Status> mStatuses;
 }
 
 public class Status

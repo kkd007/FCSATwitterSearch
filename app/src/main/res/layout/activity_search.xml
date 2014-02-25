@@ -1,0 +1,88 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+R.color class, is androids predefined color class with color values.
+-->
+<TableLayout xmlns:android="http://schemas.android.com/apk/res/android"
+             android:layout_width="match_parent"
+             android:layout_height="match_parent"
+             android:background="@android:color/white"
+             android:id="@+id/tableLayout"
+             android:padding="5dp"
+             android:stretchColumns="*">
+
+    <TableRow android:layout_width="match_parent"
+              android:layout_height="wrap_content"
+              android:id="@+id/tableRow0">
+
+        <EditText android:id="@+id/twitterQueryEditText"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content" android:layout_span="2"
+            android:inputType="text"
+            android:imeOptions="actionNext"
+            android:hint="@string/twitterQueryPrompt"/>
+    </TableRow>
+
+    <TableRow
+        android:layout_width="match_parent"
+        android:layout_height="fill_parent"
+        android:id="@+id/tableRow1">
+        <EditText android:layout_height="wrap_content"
+                  android:hint="@string/tagPrompt"
+                  android:inputType="text"
+                  android:imeOptions="actionDone"
+                  android:id="@+id/twitterTagQueryEditText"/>
+        <Button android:id="@+id/saveButton" android:text="Save"/>
+    </TableRow>
+
+    <!--tableRow2-->
+    <TableRow
+        android:layout_width="match_parent"
+        android:layout_height="fill_parent"
+        android:id="@+id/tableRow2"
+        android:background="@color/light_orange">
+
+        <TextView android:layout_height="wrap_content"
+            android:id="@+id/taggedSearchesTextView"
+            android:text="@string/taggedSearches"
+            android:layout_width="match_parent"
+            android:layout_gravity="center_horizontal"
+            android:layout_span="2" android:textSize="18sp"
+            android:textColor="@android:color/black"
+            android:padding="5dp"/>
+    </TableRow>
+
+    <!--tableRow3-->
+    <TableRow
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:id="@+id/tableRow3"
+        android:background="@color/light_orange"
+        android:layout_weight="1">
+        <ScrollView android:id="@+id/twitterQueryScrollView" android:layout_width="match_parent"
+            android:layout_span="2" android:padding="5dp">
+            <TableLayout
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:id="@+id/twitterQueryTableLayout"
+                android:padding="5dp"
+                android:stretchColumns="*">
+
+            </TableLayout>
+        </ScrollView>
+
+    </TableRow>
+
+    <!--tableRow4-->
+    <TableRow
+        android:layout_width="match_parent"
+        android:layout_height="fill_parent"
+        android:id="@+id/tableRow4">
+
+        <Button android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:id="@+id/clearTagsButton"
+                android:text="@string/clearTags"
+                android:layout_span="2" android:layout_marginTop="5dp"/>
+
+    </TableRow>
+</TableLayout>

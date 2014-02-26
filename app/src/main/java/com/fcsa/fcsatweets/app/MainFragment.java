@@ -6,6 +6,7 @@ import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
@@ -85,33 +86,7 @@ public class MainFragment extends Fragment {
         public void onClick(View view) {
             String buttonText = ((Button) view).getText().toString();
             String query = savedSearches.getString(buttonText, null);
-
-
               new FetchBearerTokenTask2().execute(query);
-//
-//            InputStream is = new ByteArrayInputStream(stResposne.getBytes());
-//
-//            // read it with BufferedReader
-//
-//            final GsonBuilder builder = new GsonBuilder();
-//            final Gson gson = builder.create();
-//            BufferedReader br = new BufferedReader(new InputStreamReader(is));
-//            List<Status> statusList = gson.fromJson(br, new TypeToken<List<Status>>(){}.getType());
-//            try {
-//                br.close();
-//            } catch (IOException e) {
-//                e.printStackTrace();
-//            }
-
-
-            //            // create the URL corresponding to the touched button's query
-//            String urlString = getString(R.string.searchURL) + query;
-//
-//            Intent getUrl = new Intent(Intent.ACTION_VIEW, Uri.parse(urlString));
-//
-//            startActivity(getUrl);
-
-
         }
     };
 
@@ -237,7 +212,7 @@ public class MainFragment extends Fragment {
         protected void onPreExecute() {
             try
             {
-                pDialog = ProgressDialog.show(getActivity(), "Loading Data", "Loading. Please wait...", true);
+                pDialog = ProgressDialog.show(getActivity(), "Searching Twitter....", "Please wait...", true);
             }
             catch (Exception ex)
             {
@@ -249,10 +224,7 @@ public class MainFragment extends Fragment {
         protected void onPostExecute(String responseString)
         {
 
-            if (pDialog.isShowing())
-                pDialog.dismiss();
-
-            // Start TwitterSearchActivity
+           // Start TwitterSearchActivity
             Intent i = new Intent(getActivity(),TwitterSearchActivity.class);
             if(responseString==null || responseString.length()==0)
             {
@@ -262,6 +234,9 @@ public class MainFragment extends Fragment {
             {
                 i.putExtra(TwitterSearchFragment.EXTRA_SEARCH_QUERY,responseString);
             }
+            if (pDialog.isShowing())
+                pDialog.dismiss();
+
             startActivity(i);
 
 
@@ -273,7 +248,10 @@ public class MainFragment extends Fragment {
 
         @Override
         protected String doInBackground(String... params) {
-            String uriStr = "https://api.twitter.com/1.1/search/tweets.json?q=Farm%20Credit";
+
+
+            String searchString = Uri.encode(params[0]);
+            String uriStr = "https://api.twitter.com/1.1/search/tweets.json?q="+searchString;
             String bearerToken = "AAAAAAAAAAAAAAAAAAAAABwWWQAAAAAAUNyabju6tSElgeurJtQVkUUEfGE%3DVXA9ukvoFha46s4ffdByKCnbeoHJxzsu1HZNMNEygP0NRtGf4O";
 
             URL url = null;

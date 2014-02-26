@@ -1,6 +1,7 @@
 package com.fcsa.fcsatweets.app;
 
 import android.app.ProgressDialog;
+import android.content.Context;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
@@ -11,6 +12,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
+import android.widget.Button;
 import android.widget.ListView;
 import android.widget.TextView;
 
@@ -24,6 +26,7 @@ import org.apache.http.StatusLine;
 import org.apache.http.client.HttpClient;
 import org.apache.http.client.methods.HttpGet;
 import org.apache.http.impl.client.DefaultHttpClient;
+import org.w3c.dom.Text;
 
 import java.io.BufferedReader;
 import java.io.ByteArrayInputStream;
@@ -57,72 +60,34 @@ public class TwitterSearchFragment extends ListFragment {
     public TwitterSearchFragment() { }
 
 
-//    @Override
-//    public void onActivityCreated(Bundle saveInstanceState)
-//    {
-//        super.onCreate(saveInstanceState);
-//        setRetainInstance(true);
-//        initLayout();
-//        int layout = R.layout.list_item_twittersearch;
-//
-//        String searchQuery = (String)getArguments().getString(EXTRA_SEARCH_QUERY);
-//        setListAdapter(new TwitterSearchAdapter(getActivity(), layout, statusesList) );
-//
-//    }
-
     @Override
-    public View onCreateView(LayoutInflater inflater, ViewGroup container,
-            Bundle savedInstanceState) {
-
-
-        View rootView = inflater.inflate(R.layout.fragment_twitter_search, container, false);
+    public void onCreate(Bundle saveInstanceState)
+    {
+        super.onCreate(saveInstanceState);
 
         String searchQuery = (String)getArguments().getString(EXTRA_SEARCH_QUERY);
 
-        //    JSONObject jso = new JSONObject(responseString);
-        //   JSONArray ja = jso.getJSONArray("statuses");
-        //String jsonObjectString  = responseString.replace("statuses","twittersearchresults");
+        final GsonBuilder builder = new GsonBuilder();
+        final Gson gson = builder.create();
+        Statuses statusesObj =  gson.fromJson(searchQuery, Statuses.class);
 
 
+           TwitterSearchAdapter adapter = new TwitterSearchAdapter(statusesObj.mStatuses);
+           setListAdapter(adapter);
+//          ListView v =  getListView(adapter);
+//        View footerView =  ((LayoutInflater)getActivity().getSystemService(Context.LAYOUT_INFLATER_SERVICE)).inflate(R.layout.footer_layout, null, false);
+//        v.addFooterView(footerView);
+////
+        //code to set adapter to populate list
+//        View footerView =  ((LayoutInflater)getActivity().getSystemService(Context.LAYOUT_INFLATER_SERVICE)).inflate(R.layout.footer_layout, null, false);
+//
+//        ListView view = (ListView)(getActivity().findViewById(R.layout.fragment_twitter_search));
+//        view.addFooterView(footerView);
 
-        try
-        {
-            final GsonBuilder builder = new GsonBuilder();
-            final Gson gson = builder.create();
-            Statuses statusesObj =  gson.fromJson(searchQuery, Statuses.class);
-
-            int layout = R.layout.list_item_twittersearch;
-
-            //setListAdapter(new TwitterSearchAdapter(getActivity(), layout,  statusesObj.mStatuses) );
-
-            mListView = (ListView)(rootView.findViewById(R.layout.list_item_twittersearch));
-            mListView.setAdapter(new TwitterSearchAdapter(getActivity(), layout,  statusesObj.mStatuses));
-
-            String msg = "";
-
-        }
-        catch (Exception e)
-        {
-
-            String msg = e.getMessage();
-
-        }
-
-
-
-        return rootView;
     }
 
 
-    private void initLayout() {
-
-        mListView = (ListView)getListView();
-        statusesList = new Statuses();
-    }
-
-
-
-    public static TwitterSearchFragment newInstance(String searchQuery)
+   public static TwitterSearchFragment newInstance(String searchQuery)
     {
         Bundle args = new Bundle();
         args.putString(EXTRA_SEARCH_QUERY,searchQuery);
@@ -135,9 +100,9 @@ public class TwitterSearchFragment extends ListFragment {
 
     private class TwitterSearchAdapter extends ArrayAdapter<Status>
     {
-        public TwitterSearchAdapter(FragmentActivity activity, int layout, ArrayList<Status> statuses)
+        public TwitterSearchAdapter(ArrayList<Status> statuses)
         {
-            super(getActivity(),layout, statuses);
+            super(getActivity(),0, statuses);
         }
 
         @Override
@@ -150,8 +115,18 @@ public class TwitterSearchFragment extends ListFragment {
 
             Status item = getItem(position);
 
-            TextView textTextView = (TextView)convertView.findViewById(R.id.twittersearch_list_item_text);
+            TextView screenTextView = (TextView)convertView.findViewById(R.id.twitter_search_screen_name);
+            screenTextView.setText(item.getUser().getScreen_name());
+
+            TextView locationTextView = (TextView)convertView.findViewById(R.id.twitter_search_location);
+            locationTextView.setText(item.getUser().getLocation());
+
+            TextView textTextView = (TextView)convertView.findViewById(R.id.twitter_search_text);
             textTextView.setText(item.getText());
+
+//            TextView dateTextView = (TextView)convertView.findViewById(R.id.twitter_search_date);
+//            textTextView.setText(item.getCreated_at());
+
             return convertView;
         }
     }

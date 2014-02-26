@@ -37,19 +37,11 @@ public class TwitterSearchActivity extends ActionBarActivity {
         TwitterSearchFragment twitterFragment;
         twitterFragment = TwitterSearchFragment.newInstance(queryString);
 
-//        if (savedInstanceState == null) {
-//            getSupportFragmentManager().beginTransaction()
-//                    .add(R.id.container, new TwitterSearchFragment(this))
-//                    .commit();
-//        }
-
             if (savedInstanceState == null) {
             getSupportFragmentManager().beginTransaction()
                     .add(R.id.container, twitterFragment)
                     .commit();
         }
-
-
 
     }
 

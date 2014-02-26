@@ -34,8 +34,7 @@ public class Status
         this.text = text;
     }
 
-    public User getUser() {
-        return user;
+    public User getUser() {  return user;
     }
 
     public void setUser(User user) {
